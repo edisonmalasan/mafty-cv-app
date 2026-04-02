@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    /* Core */
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node16",
+
+    /* Paths */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": "./src",
+
+    /* Node */
+    "types": ["node"],
+
+    /* Interop */
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    /* Strictness */
+    "strict": true,
+    "skipLibCheck": true,
+
+    /* DX */
+    "sourceMap": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
