@@ -2,13 +2,12 @@
   "compilerOptions": {
     /* Core */
     "target": "ES2022",
-    "module": "CommonJS",
+    "module": "node16",
     "moduleResolution": "node16",
 
     /* Paths */
     "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./src",
 
     /* Node */
     "types": ["node"],
