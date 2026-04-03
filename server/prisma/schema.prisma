@@ -67,3 +67,61 @@ model ResumeHeader {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 }
+
+// RESUME SECTIONS
+model ResumeSection {
+    id         String @id @default(uuid())
+    resumeId   String
+    resume     Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+    type       SectionType
+    title      String?
+    position   Int
+    visible    Boolean @default(true)
+    // typed items
+    experienceItems ExperienceItem[]
+    educationItems  EducationItem[]
+    projectItems    ProjectItem[]
+    skillItems      SkillItem[]
+    certificationItems CertificationItem[]
+    languageItems   LanguageItem[]
+    interestItems   InterestItem[]
+    referenceItems  ReferenceItem[]
+    organizationItems OrganizationItem[]
+    publicationsItems PublicationItem[]
+    awardItems AwardItem[]
+    courseItems CourseItem[]
+    customItems CustomItem[]
+    createdAt  DateTime @default(now())
+}
+
+enum SectionType {
+    EXPERIENCE
+    EDUCATION
+    PROJECTS
+    SKILLS
+    CERTIFICATIONS
+    LANGUAGES
+    INTERESTS
+    REFERENCES
+    ORGANIZATIONS
+    PUBLICATIONS
+    AWARDS
+    COURSES
+    CUSTOM
+}
+
+model ExperienceItem {
+    id          String @id @default(uuid())
+    sectionId   String
+    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    jobTitle    String?
+    company     String?
+    companyUrl  String?
+    startDate   String?
+    endDate     String?
+    current     Boolean @default(false)
+    location    String?
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
