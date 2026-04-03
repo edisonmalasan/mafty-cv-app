@@ -23,6 +23,6 @@
     /* DX */
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": ["src", "index.ts"],
   "exclude": ["node_modules", "dist"]
 }
