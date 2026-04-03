@@ -183,3 +183,113 @@ enum SkillLevel {
     ADVANCED
     EXPERT
 }
+
+// CERTIFICATION ITEMS
+model CertificationItem {
+    id          String @id @default(uuid())
+    sectionId   String
+    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    name        String?
+    issuerUrl   String?
+    issueDate   String?
+    credentialId String?
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+// LANGUAGE ITEMS
+model LanguageItem {
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  language    String?
+  proficiency Proficiency?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum Proficiency {
+    BASIC
+    CONVERSATIONAL
+    PROFICIENT
+    FLUENT
+    NATIVE
+}
+
+// INTEREST ITEMS
+model InterestItem {
+  id        String        @id @default(uuid())
+  sectionId String
+  section   ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name      String?
+  interest  String?
+  interestUrl String?
+  description String?
+  position  Int
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+
+// REFERENCE ITEMS
+model ReferenceItem {
+  id           String     @id @default(uuid())
+  sectionId    String
+  section      ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name         String?
+  nameUrl      String?
+  jobTitle     String?       
+  organization String?
+  email        String?
+  phone        String?
+  description  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// ORGANIZATION ITEMS
+model OrganizationItem {
+  id          String     @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  organization String?
+  organizationUrl         String?
+  position       String?
+  startDate   String?
+  endDate     String?
+  location    String?
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// PUBLICATION ITEMS
+model PublicationItem {
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title       String?
+  titleUrl    String?
+  publisher   String?
+  date        DateTime?
+  description String?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// AWARD ITEMS
+model AwardItem {
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  award       String?
+  awardUrl    String?
+  issuer      String?
+  date        DateTime?
+  description String?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
