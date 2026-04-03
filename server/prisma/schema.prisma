@@ -110,6 +110,8 @@ enum SectionType {
     CUSTOM
 }
 
+
+// EXPERIENCE ITEMS
 model ExperienceItem {
     id          String @id @default(uuid())
     sectionId   String
@@ -124,4 +126,60 @@ model ExperienceItem {
     description String?
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
+}
+
+
+// EDUCATION ITEMS
+model EducationItem {
+    id          String @id @default(uuid())
+    sectionId   String
+    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    degree      String?
+    school      String?
+    schoolUrl   String?
+    startDate   String?
+    endDate     String?
+    location    String?
+    description String?
+    position    Int
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+
+// PROJECT ITEMS
+model ProjectItem {
+    id          String @id @default(uuid())
+    sectionId   String
+    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    name        String?
+    role        String?
+    url         String?
+    startDate   String?
+    endDate     String?
+    description String?
+    position    Int
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+
+// SKILL ITEMS
+model SkillItem {
+    id          String @id @default(uuid())
+    sectionId   String
+    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    name        String?
+    category    String?
+    level       SkillLevel?
+    position    Int
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+enum SkillLevel {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+    EXPERT
 }
