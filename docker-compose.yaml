@@ -6,6 +6,7 @@ services:
     container_name: maftycv-server
     ports:
       - "5000:5000"
+      - "5555:5555" # for prisma studio local
     depends_on:
       - db
     environment:
