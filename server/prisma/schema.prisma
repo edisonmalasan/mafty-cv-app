@@ -1,201 +1,251 @@
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
-
 
 // USER
 model User {
-    id              String @id @default(uuid())
-    email           String @unique
-    passwordHash    String?
-    name            String? 
-    avatarUrl       String?
-    provider        AuthProvider?
-    providerId      String?
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String?
+  name         String?
+  avatarUrl    String?
+  provider     AuthProvider?
+  providerId   String?
+  resumes      Resume[]      
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 enum AuthProvider {
-    GOOGLE
-    GITHUB
-    LOCAL
+  GOOGLE
+  GITHUB
+  LOCAL
 }
-
 
 // RESUME
 model Resume {
-    id          String @id @default(uuid())
-    userId      String
-    user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    title       String
-    slug        String @unique
-    isPublic    Boolean @default(false)
-    templateId  String?
-    template    Template? @relation(fields: [templateId], references: [id])
-    header      ResumeHeader?
-    sections    ResumeSection[]
-    settings    ResumeSettings?
-    exports     Export[]
-    links       ResumeLink[]
-    views       ResumeView[]
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id         String          @id @default(uuid())
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  slug       String?         @unique  // ← must be optional
+  isPublic   Boolean         @default(false)
+  templateId String?
+  template   Template?       @relation(fields: [templateId], references: [id])
+  header     ResumeHeader?
+  sections   ResumeSection[]
+  settings   ResumeSettings?
+  exports    Export[]
+  links      ResumeLink[]    // ← public share links
+  views      ResumeView[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
 }
 
-
-// HEADER
+// HEADER — personal info + additional details
 model ResumeHeader {
-    id          String @id @default(uuid())
-    resumeId    String @unique
-    resume      Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-    fullName    String?
-    jobTitle    String?
-    email       String?
-    phone       String?
-    website     String?
-    address     String?
-    linkedin    String?
-    github      String? 
-    avatarUrl   String?
-    summary     String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id        String  @id @default(uuid())
+  resumeId  String  @unique
+  resume    Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  // 1
+  namePrefix  String?   // Mr. / Ms. / Dr. etc.
+  firstName   String?
+  lastName    String?
+  jobTitle    String?
+  avatarUrl   String?
+  email       String?
+  phone       String?
+  city        String?
+  country     String?
+  summary     String?   
+
+  // 2
+  passportId        String?
+  nationality       String?
+  dateOfBirth       String?  
+  visa              String?
+  availability      String?
+  gender            String?
+  pronoun           String?
+  disability        String?
+  workMode          WorkMode?
+  willingToRelocate Boolean?
+  expectedSalary    String?
+  secondPhone       String?
+  drivingLicense    String?
+  securityClearance String?
+  maritalStatus     MaritalStatus?
+  militaryService   String?
+  smoking           Boolean?
+  height            String?  
+  weight            String? 
+
+  // flexible socmed
+  socialLinks SocialLink[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// RESUME SECTIONS
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  PREFER_NOT_TO_SAY
+}
+
+// SOCIAL LINKS 
+model SocialLink {
+  id       String       @id @default(uuid())
+  headerId String
+  header   ResumeHeader @relation(fields: [headerId], references: [id], onDelete: Cascade)
+  platform String       
+  url      String
+  label    String?     
+  position Int
+}
+
+// SECTIONS
 model ResumeSection {
-    id         String @id @default(uuid())
-    resumeId   String
-    resume     Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-    type       SectionType
-    title      String?
-    position   Int
-    visible    Boolean @default(true)
-    // typed items
-    experienceItems ExperienceItem[]
-    educationItems  EducationItem[]
-    projectItems    ProjectItem[]
-    skillItems      SkillItem[]
-    certificationItems CertificationItem[]
-    languageItems   LanguageItem[]
-    interestItems   InterestItem[]
-    referenceItems  ReferenceItem[]
-    organizationItems OrganizationItem[]
-    publicationsItems PublicationItem[]
-    awardItems AwardItem[]
-    courseItems CourseItem[]
-    customItems CustomItem[]
-    createdAt  DateTime @default(now())
+  id       String      @id @default(uuid())
+  resumeId String
+  resume   Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  type     SectionType
+  title    String?   
+  position Int
+  visible  Boolean     @default(true)
+
+  experienceItems    ExperienceItem[]
+  educationItems     EducationItem[]
+  projectItems       ProjectItem[]
+  skillItems         SkillItem[]
+  certificationItems CertificationItem[]
+  languageItems      LanguageItem[]
+  interestItems      InterestItem[]
+  referenceItems     ReferenceItem[]
+  organizationItems  OrganizationItem[]
+  publicationItems   PublicationItem[]
+  awardItems         AwardItem[]
+  courseItems        CourseItem[]
+  declarationItems   DeclarationItem[] 
+  customItems        CustomItem[]
+
+  createdAt DateTime @default(now())
 }
 
 enum SectionType {
-    EXPERIENCE
-    EDUCATION
-    PROJECTS
-    SKILLS
-    CERTIFICATIONS
-    LANGUAGES
-    INTERESTS
-    REFERENCES
-    ORGANIZATIONS
-    PUBLICATIONS
-    AWARDS
-    COURSES
-    CUSTOM
+  EXPERIENCE
+  EDUCATION
+  PROJECTS
+  SKILLS
+  CERTIFICATIONS
+  LANGUAGES
+  INTERESTS
+  REFERENCES
+  ORGANIZATIONS
+  PUBLICATIONS
+  AWARDS
+  COURSES
+  DECLARATION  
+  CUSTOM
 }
-
 
 // EXPERIENCE ITEMS
 model ExperienceItem {
-    id          String @id @default(uuid())
-    sectionId   String
-    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    jobTitle    String?
-    company     String?
-    companyUrl  String?
-    startDate   String?
-    endDate     String?
-    current     Boolean @default(false)
-    location    String?
-    description String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  jobTitle    String?
+  company     String?
+  companyUrl  String?
+  startDate   String?
+  endDate     String?
+  current     Boolean       @default(false)
+  location    String?
+  description String?
+  position    Int            
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
-
 
 // EDUCATION ITEMS
 model EducationItem {
-    id          String @id @default(uuid())
-    sectionId   String
-    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    degree      String?
-    school      String?
-    schoolUrl   String?
-    startDate   String?
-    endDate     String?
-    location    String?
-    description String?
-    position    Int
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  degree      String?
+  school      String?
+  schoolUrl   String?
+  startDate   String?
+  endDate     String?
+  location    String?
+  description String?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
-
 
 // PROJECT ITEMS
 model ProjectItem {
-    id          String @id @default(uuid())
-    sectionId   String
-    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    name        String?
-    role        String?
-    url         String?
-    startDate   String?
-    endDate     String?
-    description String?
-    position    Int
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name        String?
+  subtitle    String?     
+  url         String?
+  startDate   String?
+  endDate     String?
+  current     Boolean       @default(false)
+  description String?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
-
 
 // SKILL ITEMS
 model SkillItem {
-    id          String @id @default(uuid())
-    sectionId   String
-    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    name        String?
-    category    String?
-    level       SkillLevel?
-    position    Int
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name        String?
+  information String?       
+  level       SkillLevel?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 enum SkillLevel {
-    BEGINNER
-    INTERMEDIATE
-    ADVANCED
-    EXPERT
+  BEGINNER
+  AMATEUR      
+  COMPETENT    
+  PROFICIENT
+  EXPERT
 }
 
 // CERTIFICATION ITEMS
 model CertificationItem {
-    id          String @id @default(uuid())
-    sectionId   String
-    section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-    name        String?
-    issuerUrl   String?
-    issueDate   String?
-    credentialId String?
-    description String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name        String?
+  url         String?      
+  information String?  
+  position    Int          
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 // LANGUAGE ITEMS
@@ -204,64 +254,66 @@ model LanguageItem {
   sectionId   String
   section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   language    String?
+  information String?     
   proficiency Proficiency?
+  position    Int
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
 
 enum Proficiency {
-    BASIC
-    CONVERSATIONAL
-    PROFICIENT
-    FLUENT
-    NATIVE
+  BASIC
+  CONVERSATIONAL
+  PROFICIENT
+  FLUENT
+  NATIVE
 }
 
 // INTEREST ITEMS
 model InterestItem {
-  id        String        @id @default(uuid())
-  sectionId String
-  section   ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  name      String?
-  interest  String?
-  interestUrl String?
-  description String?
-  position  Int
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  interest    String?       
+  url         String?
+  information String?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
-
 
 // REFERENCE ITEMS
 model ReferenceItem {
-  id           String     @id @default(uuid())
+  id           String        @id @default(uuid())
   sectionId    String
   section      ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   name         String?
   nameUrl      String?
-  jobTitle     String?       
+  jobTitle     String?
   organization String?
   email        String?
   phone        String?
-  description  String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  position     Int          
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 // ORGANIZATION ITEMS
 model OrganizationItem {
-  id          String     @id @default(uuid())
-  sectionId   String
-  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  organization String?
-  organizationUrl         String?
-  position       String?
-  startDate   String?
-  endDate     String?
-  location    String?
-  description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String        @id @default(uuid())
+  sectionId       String
+  section         ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  organization    String?
+  organizationUrl String?
+  role            String?     
+  startDate       String?
+  endDate         String?
+  current         Boolean       @default(false)
+  location        String?
+  description     String?
+  position        Int           // sort order
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 // PUBLICATION ITEMS
@@ -270,9 +322,13 @@ model PublicationItem {
   sectionId   String
   section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   title       String?
-  titleUrl    String?
+  url         String?
   publisher   String?
-  date        DateTime?
+  day         Int?
+  month       Int?
+  year        Int?
+  hideDay     Boolean       @default(false)
+  hideMonth   Boolean       @default(false)
   description String?
   position    Int
   createdAt   DateTime      @default(now())
@@ -280,16 +336,138 @@ model PublicationItem {
 }
 
 // AWARD ITEMS
+// day/month/year split + hide flags per req doc
 model AwardItem {
   id          String        @id @default(uuid())
   sectionId   String
   section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   award       String?
-  awardUrl    String?
+  url         String?
   issuer      String?
-  date        DateTime?
+  day         Int?
+  month       Int?
+  year        Int?
+  hideDay     Boolean       @default(false)
+  hideMonth   Boolean       @default(false)
   description String?
   position    Int
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+}
+
+// COURSE ITEMS
+model CourseItem {
+  id          String        @id @default(uuid())
+  sectionId   String
+  section     ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  name        String?
+  url         String?
+  institution String?
+  startDate   String?
+  endDate     String?
+  current     Boolean       @default(false)
+  location    String?
+  description String?
+  position    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// DECLARATION ITEMS  ← entirely new
+model DeclarationItem {
+  id            String        @id @default(uuid())
+  sectionId     String
+  section       ResumeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  text          String?
+  signatureUrl  String?      
+  fullName      String?
+  place         String?
+  date          String?
+  position      Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// CUSTOM ITEMS
+model CustomItem {
+  id          String          @id @default(uuid())
+  sectionId   String
+  section     ResumeSection   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title       String?
+  titleUrl    String?      
+  subtitle    String?
+  startDate   String?
+  endDate     String?
+  current     Boolean         @default(false)
+  location    String?
+  description String?
+  extra       Json?
+  position    Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// RESUME SETTINGS
+model ResumeSettings {
+  id             String    @id @default(uuid())
+  resumeId       String    @unique
+  resume         Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  primaryColor   String?
+  fontFamily     String?
+  fontSize       Float?
+  lineSpacing    Float?
+  sectionSpacing Float?
+  paperSize      PaperSize @default(A4)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+enum PaperSize {
+  A4     
+  LETTER
+}
+
+// TEMPLATE
+model Template {
+  id         String   @id @default(uuid())
+  name       String
+  previewUrl String
+  isPremium  Boolean  @default(false)
+  resumes    Resume[]
+}
+
+// EXPORTS
+model Export {
+  id        String       @id @default(uuid())
+  resumeId  String
+  resume    Resume       @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  fileUrl   String
+  format    ExportFormat
+  createdAt DateTime     @default(now())
+}
+
+enum ExportFormat {
+  PDF
+  DOCX
+}
+
+// PUBLIC SHARE LINKS
+model ResumeLink {
+  id         String   @id @default(uuid())
+  resumeId   String
+  resume     Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  slug       String   @unique
+  isActive   Boolean  @default(true)
+  viewsCount Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+// ANALYTICS
+model ResumeView {
+  id        String   @id @default(uuid())
+  resumeId  String
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  ipAddress String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
 }
