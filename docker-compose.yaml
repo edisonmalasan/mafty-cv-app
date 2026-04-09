@@ -13,7 +13,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/maftycv
 
   db:
-    image: postgres:latest
+    image: postgres:17
     container_name: maftycv-db
     restart: always
     environment:

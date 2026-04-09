@@ -1,6 +1,6 @@
 import { start } from "node:repl";
-import { app } from "./src/app";
-import { env } from "./src/config/env";
+import { app } from "./app";
+import { env } from "./config/env";
 
 const startServer = () => {
   try {

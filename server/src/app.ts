@@ -3,6 +3,7 @@ import cors from "cors";
 import { env } from "./config/env";
 import helmet from "helmet";
 import morgan from "morgan";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
@@ -28,5 +29,8 @@ app.use(express.json());
 app.get("/api/health", (req: Request, res: Response) => {
   res.json({ status: "ok", message: "server is running" });
 });
+
+// global error handler must be the very last middleware
+app.use(errorHandler);
 
 export { app };
