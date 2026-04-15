@@ -1,4 +1,5 @@
 import jwt, { SignOptions } from "jsonwebtoken";
+import { access } from "node:fs";
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
@@ -38,4 +39,12 @@ export function verifyRefreshToken(token: string): TokenPayload | null {
   } catch {
     return null;
   }
+}
+
+// generates both tokens and sets refresh in httpOnly cookie
+export function issueTokenPair(payload: TokenPayload) {
+  return {
+    accessToken: generateAccessToken(payload),
+    refreshToken: generateRefreshToken(payload),
+  };
 }
