@@ -1,10 +1,27 @@
-import { AuthService } from "../auth/auth.service";
+import { Request, Response } from "express";
+import { AuthService } from "./auth.service";
+import { success } from "zod";
 
-export const handleUserRegistration = async (req: any, res: any) => {
+const REFRESH_COOKIE = "refreshToken";
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+};
+
+export const handleRegister = async (req: Request, res: Response) => {
   try {
-    const userData = req.body;
-    const result = await AuthService.register(userData);
-    res.status(201).json({ success: true, data: result });
+    const { email, password, name } = req.body;
+    const { user, accessToken, refreshToken } = await AuthService.register({
+      email,
+      password,
+      name,
+    });
+
+    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    res.status(201).json({ success: true, data: { user, accessToken } });
   } catch (error: any) {
     res
       .status(error.statusCode || 400)
@@ -12,11 +29,16 @@ export const handleUserRegistration = async (req: any, res: any) => {
   }
 };
 
-export const handleLogin = async (req: any, res: any) => {
+export const handleLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    const result = await AuthService.login({ email, password });
-    res.status(200).json({ success: true, data: result });
+    const { user, accessToken, refreshToken } = await AuthService.login({
+      email,
+      password,
+    });
+
+    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    res.status(200).json({ success: true, data: { user, accessToken } });
   } catch (error: any) {
     res
       .status(error.statusCode || 400)
@@ -24,23 +46,46 @@ export const handleLogin = async (req: any, res: any) => {
   }
 };
 
-export const handleLogout = async (req: any, res: any) => {
-  res.status(200).json({ success: true, message: "Logged out successfully" });
-};
-
-export const handleRefreshToken = async (req: any, res: any) => {
+export const handleRefreshToken = async (req: Request, res: Response) => {
   try {
-    const { refreshToken } = req.body;
+    // read from httpOnly cookie
+    const oldRefreshToken = req.cookies[REFRESH_COOKIE];
 
-    if (!refreshToken) {
-      return res.status(400).json({
-        success: false,
-        message: "Refresh token is required",
-      });
+    if (!oldRefreshToken) {
+      res
+        .status(401)
+        .json({ success: false, message: "No refresh token provided." });
+      return;
     }
+
+    const { accessToken, refreshToken } =
+      await AuthService.refresh(oldRefreshToken);
+
+    // set new refresh token in cookie & overwrite old one
+    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    res.status(200).json({ success: true, data: { accessToken } });
   } catch (error: any) {
     res
       .status(error.statusCode || 400)
+      .json({ success: false, message: error.message });
+  }
+};
+
+export const handleLogout = async (req: Request, res: Response) => {
+  try {
+    const refreshToken = req.cookies?.[REFRESH_COOKIE];
+
+    if (refreshToken) {
+      await AuthService.logout(refreshToken);
+    }
+
+    res.clearCookie(REFRESH_COOKIE, COOKIE_OPTIONS);
+    res
+      .status(200)
+      .json({ success: true, message: "Logged out successfully." });
+  } catch (error: any) {
+    res
+      .status(error.statusCode || 500)
       .json({ success: false, message: error.message });
   }
 };
