@@ -1,15 +1,8 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
-import { success } from "zod";
+import { REFRESH_COOKIE_OPTIONS } from "./auth.constants";
 
 const REFRESH_COOKIE = "refreshToken";
-
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-};
 
 export const handleRegister = async (req: Request, res: Response) => {
   try {
@@ -20,7 +13,7 @@ export const handleRegister = async (req: Request, res: Response) => {
       name,
     });
 
-    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    res.cookie(REFRESH_COOKIE, refreshToken, REFRESH_COOKIE_OPTIONS);
     res.status(201).json({ success: true, data: { user, accessToken } });
   } catch (error: any) {
     res
@@ -37,7 +30,7 @@ export const handleLogin = async (req: Request, res: Response) => {
       password,
     });
 
-    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    res.cookie(REFRESH_COOKIE, refreshToken, REFRESH_COOKIE_OPTIONS);
     res.status(200).json({ success: true, data: { user, accessToken } });
   } catch (error: any) {
     res
@@ -62,7 +55,7 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
       await AuthService.refresh(oldRefreshToken);
 
     // set new refresh token in cookie & overwrite old one
-    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    res.cookie(REFRESH_COOKIE, refreshToken, REFRESH_COOKIE_OPTIONS);
     res.status(200).json({ success: true, data: { accessToken } });
   } catch (error: any) {
     res
@@ -79,7 +72,7 @@ export const handleLogout = async (req: Request, res: Response) => {
       await AuthService.logout(refreshToken);
     }
 
-    res.clearCookie(REFRESH_COOKIE, COOKIE_OPTIONS);
+    res.clearCookie(REFRESH_COOKIE, REFRESH_COOKIE_OPTIONS);
     res
       .status(200)
       .json({ success: true, message: "Logged out successfully." });
