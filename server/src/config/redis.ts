@@ -1,6 +1,7 @@
 import { Redis } from "ioredis";
+import { env } from "./env";
 
-const REDIS_URL = process.env.REDIS_URL;
+const REDIS_URL = env.REDIS_URL;
 
 if (!REDIS_URL) {
   throw new Error("REDIS_URL is not set in environment variables.");
