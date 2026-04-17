@@ -112,7 +112,7 @@ export const AuthService = {
     }
 
     // check if the token is blocklisted  (rotated || logged out)
-    const blockListed = await redisClient.get(`bl_refresh_${oldRefreshToken}`);
+    const blockListed = await redisClient.get(`blocklist:${oldRefreshToken}`);
     if (blockListed) {
       const err = new Error("Refresh token has been revoked.") as any;
       err.statusCode = 401;
