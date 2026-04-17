@@ -1,11 +1,11 @@
 import jwt, { SignOptions } from "jsonwebtoken";
-import { access } from "node:fs";
+import { env } from "../config/env";
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
-const ACCESS_EXPIRES = (process.env.JWT_ACCESS_EXPIRES ||
+const ACCESS_SECRET = env.JWT_ACCESS_SECRET!;
+const REFRESH_SECRET = env.JWT_REFRESH_SECRET!;
+const ACCESS_EXPIRES = (env.JWT_ACCESS_EXPIRES ||
   "15m") as SignOptions["expiresIn"];
-const REFRESH_EXPIRES = (process.env.JWT_REFRESH_EXPIRES ||
+const REFRESH_EXPIRES = (env.JWT_REFRESH_EXPIRES ||
   "7d") as SignOptions["expiresIn"];
 
 if (!ACCESS_SECRET || !REFRESH_SECRET) {
