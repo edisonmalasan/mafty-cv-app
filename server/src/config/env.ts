@@ -21,9 +21,22 @@ const envSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string(),
   GITHUB_CALLBACK_URL: z.string(),
 
-  // later can add more env vars likke JWT secrets, Redis URL, etc.
-  // JWT_ACCESS_SECRET: z.string(),
-  // REDIS_URL: z.string(),
+  // jwt
+  JWT_ACCESS_SECRET: z.string(),
+  JWT_REFRESH_SECRET: z.string(),
+  JWT_ACCESS_EXPIRES: z.string().default("15m"),
+  JWT_REFRESH_EXPIRES: z.string().default("7d"),
+  // redis
+  REDIS_URL: z.string(),
+  // supabase (for file storage)
+  SUPABASE_URL: z.string(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string(),
+  // email (for sending notifications, password reset, etc.)
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().default("587"),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().default("noreply@maftycv.com"),
 });
 
 const _env = envSchema.safeParse(process.env);
