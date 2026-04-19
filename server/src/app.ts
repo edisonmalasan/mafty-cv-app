@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./modules/auth/auth.routes";
+import userRoutes from "./modules/user/user.routes";
 
 const app = express();
 
@@ -30,13 +31,14 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 // health check endpoint
 app.get("/api/health", (req: Request, res: Response) => {
   res.json({ status: "ok", message: "server is running" });
 });
 
-// global error handler must be the very last middleware
+// global error handler
 app.use(errorHandler);
 
 export { app };
