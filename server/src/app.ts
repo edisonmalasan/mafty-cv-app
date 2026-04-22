@@ -7,6 +7,7 @@ import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/user/user.routes";
+import templateRoutes from "./modules/template/template.routes";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(cookieParser());
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/templates", templateRoutes);
 
 // health check endpoint
 app.get("/api/health", (req: Request, res: Response) => {
