@@ -16,6 +16,12 @@ const envSchema = zod_1.z.object({
     CLIENT_URL: zod_1.z.string().default("http://localhost:5173"),
     // database
     DATABASE_URL: zod_1.z.string().optional(), // optional for now
+    // oauth
+    GOOGLE_CLIENT_ID: zod_1.z.string(),
+    GOOGLE_CLIENT_SECRET: zod_1.z.string(),
+    GITHUB_CLIENT_ID: zod_1.z.string(),
+    GITHUB_CLIENT_SECRET: zod_1.z.string(),
+    GITHUB_CALLBACK_URL: zod_1.z.string(),
     // later
     // JWT_ACCESS_SECRET: z.string(),
     // REDIS_URL: z.string(),
