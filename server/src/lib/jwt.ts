@@ -1,24 +1,50 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
+import { env } from "../config/env";
 
-const JWT_SECRET = process.env.JWT_SECRET || "SAMPLE_SECRET_KEY";
+const ACCESS_SECRET = env.JWT_ACCESS_SECRET!;
+const REFRESH_SECRET = env.JWT_REFRESH_SECRET!;
+const ACCESS_EXPIRES = (env.JWT_ACCESS_EXPIRES ||
+  "15m") as SignOptions["expiresIn"];
+const REFRESH_EXPIRES = (env.JWT_REFRESH_EXPIRES ||
+  "7d") as SignOptions["expiresIn"];
 
-interface tokenPayload {
-  userId: number;
+if (!ACCESS_SECRET || !REFRESH_SECRET) {
+  throw new Error("JWT secrets are not set in environment variables.");
+}
+
+export interface TokenPayload {
+  userId: string;
   email: string;
 }
 
-export function generateToken(payload: tokenPayload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "4h" });
+export function generateAccessToken(payload: TokenPayload): string {
+  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRES });
 }
 
-export function generateRefreshToken(payload: tokenPayload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+export function generateRefreshToken(payload: TokenPayload): string {
+  return jwt.sign(payload, REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES });
 }
 
-export function verifyToken(token: string) {
+export function verifyAccessToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
+    return jwt.verify(token, ACCESS_SECRET) as TokenPayload;
+  } catch {
     return null;
   }
+}
+
+export function verifyRefreshToken(token: string): TokenPayload | null {
+  try {
+    return jwt.verify(token, REFRESH_SECRET) as TokenPayload;
+  } catch {
+    return null;
+  }
+}
+
+// generates both tokens and sets refresh in httpOnly cookie
+export function issueTokenPair(payload: TokenPayload) {
+  return {
+    accessToken: generateAccessToken(payload),
+    refreshToken: generateRefreshToken(payload),
+  };
 }

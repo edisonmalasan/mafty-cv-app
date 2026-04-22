@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MaftyCV Dev Environment",
+      "dependsOn": ["docker", "git", "server", "frontend"],
+      "dependsOrder": "parallel"
+    },
+    {
+      "label": "docker",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "docker compose up -d; docker exec -it maftycv-server npm run studio"
+      ],
+      "presentation": { "panel": "shared", "group": "dev" }
+    },
+    {
+      "label": "git",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoExit", "-Command", "git status"],
+      "presentation": { "panel": "shared", "group": "dev" }
+    },
+    {
+      "label": "server",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoExit", "-Command", "cd server"],
+      "presentation": { "panel": "shared", "group": "backend" }
+    },
+    {
+      "label": "frontend",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoExit", "-Command", "cd frontend"],
+      "presentation": { "panel": "shared", "group": "frontend" }
+    }
+  ]
+}

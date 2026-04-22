@@ -1,9 +1,11 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { env } from "./config/env";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
+import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
+import authRoutes from "./modules/auth/auth.routes";
 
 const app = express();
 
@@ -24,6 +26,10 @@ if (env.NODE_ENV === "development") {
 }
 
 app.use(express.json());
+app.use(cookieParser());
+
+// routes
+app.use("/api/auth", authRoutes);
 
 // health check endpoint
 app.get("/api/health", (req: Request, res: Response) => {
