@@ -3,6 +3,7 @@ import { SectionType } from "@prisma/client";
 import { getFullResume } from "./infrastructure/resume.query";
 import { createDuplicateResume } from "./infrastructure/resume.clone";
 import { MODEL_MAP } from "./infrastructure/sectionModel.map";
+import { assertResumeOwnership } from "./resume.guard";
 import type {
   CreateResumeInput,
   UpdateResumeInput,
@@ -11,24 +12,6 @@ import type {
   AddSectionInput,
   UpdateSectionInput,
 } from "./resume.schema";
-
-// ownership guard
-export async function assertOwnership(resumeId: string, userId: string) {
-  const resume = await prisma.resume.findUnique({ where: { id: resumeId } });
-
-  if (!resume) {
-    const err = Object.assign(new Error("Resume not found."), {
-      statusCode: 404,
-    });
-    throw err;
-  }
-  if (resume.userId !== userId) {
-    const err = Object.assign(new Error("Forbidden."), { statusCode: 403 });
-    throw err;
-  }
-
-  return resume;
-}
 
 // Resume Service
 export const ResumeService = {
@@ -69,13 +52,13 @@ export const ResumeService = {
 
   // get by id
   async getById(resumeId: string, userId: string) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return getFullResume(prisma as any, resumeId);
   },
 
   // update
   async update(resumeId: string, userId: string, data: UpdateResumeInput) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resume.update({
       where: { id: resumeId },
       data,
@@ -84,13 +67,13 @@ export const ResumeService = {
 
   // delete (prisma cascades to every child model)
   async delete(resumeId: string, userId: string) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resume.delete({ where: { id: resumeId } });
   },
 
   // duplicate
   async duplicate(resumeId: string, userId: string) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
 
     return prisma.$transaction(async (tx) => {
       const original = await getFullResume(tx as any, resumeId);
@@ -104,7 +87,7 @@ export const ResumeService = {
     userId: string,
     data: UpdateHeaderInput,
   ) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resumeHeader.update({
       where: { resumeId },
       data,
@@ -117,7 +100,7 @@ export const ResumeService = {
     userId: string,
     data: UpdateSettingsInput,
   ) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resumeSettings.update({
       where: { resumeId },
       data,
@@ -126,7 +109,7 @@ export const ResumeService = {
 
   // add section
   async addSection(resumeId: string, userId: string, data: AddSectionInput) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resumeSection.create({
       data: {
         resumeId,
@@ -145,7 +128,7 @@ export const ResumeService = {
     userId: string,
     data: UpdateSectionInput,
   ) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resumeSection.update({
       where: { id: sectionId },
       data,
@@ -154,7 +137,7 @@ export const ResumeService = {
 
   //  delete section
   async deleteSection(resumeId: string, sectionId: string, userId: string) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
     return prisma.resumeSection.delete({ where: { id: sectionId } });
   },
 
@@ -166,7 +149,7 @@ export const ResumeService = {
     data: Record<string, unknown>,
   ) {
     // verify the section belongs to a resume the user owns
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
 
     const section = await prisma.resumeSection.findUnique({
       where: { id: sectionId },
@@ -187,7 +170,7 @@ export const ResumeService = {
     userId: string,
     data: Record<string, unknown>,
   ) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
 
     const section = await prisma.resumeSection.findUnique({
       where: { id: sectionId },
@@ -210,7 +193,7 @@ export const ResumeService = {
     itemId: string,
     userId: string,
   ) {
-    await assertOwnership(resumeId, userId);
+    await assertResumeOwnership(resumeId, userId);
 
     const section = await prisma.resumeSection.findUnique({
       where: { id: sectionId },
